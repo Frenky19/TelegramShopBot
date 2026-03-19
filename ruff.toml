@@ -1,0 +1,41 @@
+target-version = 'py312'
+line-length = 79
+indent-width = 4
+
+include = [
+    'admin-panel/**/*.py',
+    'telegram-bot/**/*.py',
+    'scripts/**/*.py',
+]
+extend-exclude = [
+    'admin-panel/**/migrations',
+]
+
+[lint]
+select = [
+    'E',
+    'F',
+    'W',
+    'I',
+    'Q',
+    'D100',
+    'D101',
+    'D102',
+    'D103',
+    'D104',
+    'D105',
+    'D106',
+    'D107',
+    'D204',
+]
+
+[lint.flake8-quotes]
+inline-quotes = 'single'
+multiline-quotes = 'double'
+docstring-quotes = 'double'
+avoid-escape = true
+
+[format]
+quote-style = 'single'
+indent-style = 'space'
+line-ending = 'lf'

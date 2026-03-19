@@ -1,0 +1,13 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.log
+admin-panel/logs/
+admin-panel/media/
+telegram-bot/logs/
+webapp/node_modules/
+webapp/dist/
