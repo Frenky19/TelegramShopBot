@@ -1,0 +1,2 @@
+export const MAX_FULL_NAME_LENGTH = 255
+export const MAX_ADDRESS_LENGTH = 1000
