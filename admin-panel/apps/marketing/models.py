@@ -58,6 +58,12 @@ class Broadcast(TimestampedModel):
         """Задает параметры отображения модели."""
 
         ordering = ('-created_at',)
+        indexes = [
+            models.Index(
+                fields=['status', '-created_at'],
+                name='broadcast_status_created_idx',
+            )
+        ]
         verbose_name = 'Рассылка'
         verbose_name_plural = 'Рассылки'
 

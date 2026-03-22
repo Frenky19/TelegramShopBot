@@ -90,6 +90,12 @@ class Order(TimestampedModel):
         """Задает параметры отображения модели."""
 
         ordering = ('-created_at',)
+        indexes = [
+            models.Index(
+                fields=['status', '-created_at'],
+                name='order_status_created_idx',
+            )
+        ]
         verbose_name = 'Заказ'
         verbose_name_plural = 'Заказы'
 
@@ -173,6 +179,16 @@ class NotificationEvent(TimestampedModel):
         """Задает параметры отображения модели."""
 
         ordering = ('created_at',)
+        indexes = [
+            models.Index(
+                fields=['status', 'created_at'],
+                name='notif_status_created_idx',
+            ),
+            models.Index(
+                fields=['status', 'updated_at'],
+                name='notif_status_updated_idx',
+            ),
+        ]
         verbose_name = 'Событие уведомления'
         verbose_name_plural = 'События уведомлений'
 

@@ -65,13 +65,29 @@ from apps.orders.services import (
 )
 
 
-def collect_category_ids(category: Category) -> list[int]:
-    """Собирает идентификаторы категории и всех потомков."""
-    identifiers = [category.pk]
-    for child in category.children.filter(is_active=True).order_by(
-        'sort_order', 'title'
-    ):
-        identifiers.extend(collect_category_ids(child))
+def build_category_children_map(
+    categories: list[Category],
+) -> dict[int | None, list[Category]]:
+    """Группирует категории по родителю в памяти."""
+    children_map: dict[int | None, list[Category]] = {}
+    for category in categories:
+        children_map.setdefault(category.parent_id, []).append(category)
+    return children_map
+
+
+def collect_category_ids(
+    category_id: int,
+    children_map: dict[int | None, list[Category]],
+) -> list[int]:
+    """Собирает идентификаторы категории и всех потомков без новых запросов."""
+    identifiers: list[int] = []
+    pending = [category_id]
+    while pending:
+        current_id = pending.pop()
+        identifiers.append(current_id)
+        pending.extend(
+            child.pk for child in children_map.get(current_id, [])
+        )
     return identifiers
 
 
@@ -133,11 +149,19 @@ class CategoryTreeAPIView(APIView):
 
     def get(self, request):
         """Возвращает корневые категории каталога."""
-        queryset = Category.objects.filter(
-            parent__isnull=True,
-            is_active=True,
-        ).order_by('sort_order', 'title')
-        serializer = CategoryTreeSerializer(queryset, many=True)
+        categories = list(
+            Category.objects.filter(is_active=True).order_by(
+                'parent_id',
+                'sort_order',
+                'title',
+            )
+        )
+        children_map = build_category_children_map(categories)
+        serializer = CategoryTreeSerializer(
+            children_map.get(None, []),
+            many=True,
+            context={'category_children_map': children_map},
+        )
         return Response(serializer.data)
 
 
@@ -157,13 +181,26 @@ class ProductListAPIView(ListAPIView):
         )
         category_id = self.request.query_params.get('category')
         if category_id:
-            category = Category.objects.filter(
-                pk=category_id,
-                is_active=True,
-            ).first()
-            if category:
+            try:
+                requested_category_id = int(category_id)
+            except (TypeError, ValueError):
+                requested_category_id = None
+            active_categories = list(
+                Category.objects.filter(is_active=True).only('id', 'parent_id')
+            )
+            available_category_ids = {
+                category.pk for category in active_categories
+            }
+            if (
+                requested_category_id is not None
+                and requested_category_id in available_category_ids
+            ):
+                children_map = build_category_children_map(active_categories)
                 queryset = queryset.filter(
-                    category_id__in=collect_category_ids(category)
+                    category_id__in=collect_category_ids(
+                        requested_category_id,
+                        children_map,
+                    )
                 )
         search = self.request.query_params.get('search')
         if search:

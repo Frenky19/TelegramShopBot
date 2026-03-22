@@ -46,6 +46,14 @@ class CategoryTreeSerializer(serializers.ModelSerializer):
 
     def get_children(self, obj):
         """Сериализует дочерние активные категории."""
+        children_map = self.context.get('category_children_map')
+        if children_map is not None:
+            return CategoryTreeSerializer(
+                children_map.get(obj.id, []),
+                many=True,
+                context=self.context,
+            ).data
+
         queryset = obj.children.filter(is_active=True).order_by(
             'sort_order', 'title'
         )
