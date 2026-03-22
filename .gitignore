@@ -11,3 +11,4 @@ admin-panel/media/
 telegram-bot/logs/
 webapp/node_modules/
 webapp/dist/
+admin-panel/staticfiles/

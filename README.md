@@ -1,7 +1,19 @@
 # Telegram Shop Bot
 
-Решение тестового задания: интернет-магазин в Telegram с Django-админкой,
-ботом на Aiogram и WebApp на React.
+Тестовое задание: интернет-магазин в Telegram с Django-админкой, ботом на
+Aiogram и WebApp на React.
+
+## Production
+
+Проект развернут в production-окружении.
+
+- WebApp: `https://qrkot.site/`
+- Django admin: `https://qrkot.site/admin/ (Логин: admin, Пароль: Admin12345!)`
+- Telegram бот: @Frenky19_TestShop_bot (любой другой бот, привязанный через `TELEGRAM_BOT_TOKEN)`
+- Telegram админ-группа: https://t.me/+L4MoMWOSaO0xZGMy (любая другая группа, указанная в настройках бота в Django админке. Чтобы управлять заказами из админ группы нужно поставить флаг у пользователя, что он является владельцем бота)
+
+WebApp открывается внутри Telegram через системную кнопку `Menu` и через
+inline-кнопку `Открыть WebApp` в каталоге.
 
 ## Состав проекта
 
@@ -10,85 +22,44 @@
 - `webapp` — React + TypeScript + Vite
 - `postgres` — база данных
 
-Бизнес-логика и данные находятся в `admin-panel`. Бот и WebApp работают с
-backend-ом через HTTP API.
+Backend API и бизнес-логика находятся в `admin-panel`. Бот и WebApp работают
+с backend через HTTP API.
 
-## Что можно проверить
+## Реализовано
 
-- регистрацию пользователя через контакт
-- каталог, карточку товара, корзину и оформление заказа
+- регистрация пользователя через контакт Telegram
+- каталог, карточка товара, корзина и оформление заказа
 - deep link вида `?start=product_<id>`
-- кнопку `Я оплатил(а)` и смену статусов заказа
-- админ-группу с кнопкой `Активные заказы`
-- клиентскую кнопку `Мои заказы`
+- кнопка `Я оплатил(а)` и смена статусов заказа
+- админ-группа с кнопкой `Активные заказы`
+- клиентская кнопка `Мои заказы`
 - FAQ через `inline_query`
 - рассылки из админки
-- WebApp внутри Telegram или в браузере
-
-## Быстрый старт
-
-1. Скопировать `.env.example` в `.env`.
-2. Заполнить минимум:
-
-   - `TELEGRAM_BOT_TOKEN`
-   - `INTERNAL_SERVICE_TOKEN`
-3. Поднять проект:
-
-   ```bash
-   docker compose up -d --build
-   ```
-4. Заполнить демо-каталог:
-
-   ```bash
-   docker compose exec admin-panel python manage.py seed_demo_data
-   ```
-5. Открыть админку:
-
-   - `http://localhost:8000/admin/`
-6. Если используются значения из `.env.example`, суперпользователь будет
-   создан автоматически:
-
-   - логин: `admin`
-   - пароль: `Admin12345!`
-
-## Точки входа
-
-- Django admin: `http://localhost:8000/admin/`
-- WebApp в браузере: `http://localhost:5173/`
-- Telegram-бот: бот, для которого указан `TELEGRAM_BOT_TOKEN`
+- Telegram WebApp с общей корзиной и checkout
 
 ## Сценарий
 
-### 1. Подготовка
-
-1. В админке открыть `Настройки бота`.
-2. Заполнить `ID админ-чата` Telegram-группы для администраторов.
-3. При необходимости заполнить обязательные каналы подписки.
-4. Для проверки WebApp внутри Telegram указать публичный `HTTPS` URL в
-   `catalog_webapp_url`.
-
-### 2. Пользовательский сценария
+### 1. Бот
 
 1. Открыть бота и отправить `/start`.
 2. Передать контакт.
 3. Открыть каталог.
 4. Перейти в карточку товара.
 5. Добавить товар в корзину.
-6. Оформить заказ: ввести ФИО и адрес.
+6. Оформить заказ: указать ФИО и адрес.
 7. Нажать `Я оплатил(а)`.
 
 Ожидаемый результат:
 
 - заказ создается успешно
-- клиент получает уведомления о статусах
+- клиент получает уведомления о смене статуса
 - в админ-группу приходит сообщение о новом заказе
 
-### 3. Администаторский сценария
+### 2. Админ-группа
 
-1. В админ-группе нажать `Активные заказы`.
+1. Нажать `Активные заказы`.
 2. Открыть созданный заказ.
-3. Перевести заказ по статусам:
-
+3. Перевести его по статусам:
    - `Оплачен`
    - `В обработке`
    - `Отправлен`
@@ -99,9 +70,9 @@ backend-ом через HTTP API.
 - статус меняется и в Telegram, и в админке
 - клиент получает уведомление после каждой смены статуса
 
-### 4. Админка
+### 3. Django admin
 
-В Django admin доступны:
+В админке доступны:
 
 - категории и товары с несколькими изображениями
 - клиенты
@@ -116,31 +87,68 @@ backend-ом через HTTP API.
 - создание FAQ
 - создание рассылки с изображением `png`, `jpg` или `jpeg`
 
-### 5. WebApp
+### 4. WebApp
 
-Вариант 1: в браузере
-
-- открыть `http://localhost:5173/`
-- проверить каталог, поиск и фильтр
-
-Вариант 2: внутри Telegram
-
-- указать публичный `HTTPS` URL в `catalog_webapp_url`
-- открыть WebApp из бота
-- проверить каталог, корзину и оформление заказа
+1. Открыть WebApp внутри Telegram через `Menu` или `Открыть WebApp`.
+2. Проверить каталог, поиск и фильтрацию по категориям.
+3. Добавить товар в корзину.
+4. Открыть корзину.
+5. Перейти к оформлению заказа.
 
 Ожидаемый результат:
 
-- WebApp использует тот же каталог
+- WebApp использует тот же каталог, что и бот
 - корзина общая с ботом
 - оформление заказа работает через backend API
 
-## Автоматическая smoke-проверка
+## Локальный запуск
 
-Для быстрой автоматической проверки можно запустить:
+Если нужно поднять проект локально:
+
+1. Скопировать `.env.example` в `.env`.
+2. Заполнить минимум:
+   - `TELEGRAM_BOT_TOKEN`
+   - `INTERNAL_SERVICE_TOKEN`
+3. Поднять контейнеры:
 
 ```bash
-python scripts/smoke_order.py --base-url http://localhost:8000 --service-token <INTERNAL_SERVICE_TOKEN>
+docker compose up -d --build
+```
+
+4. Заполнить демо-каталог:
+
+```bash
+docker compose exec admin-panel python manage.py seed_demo_data
+```
+
+Точки входа локально:
+
+- Django admin: `http://localhost:8000/admin/`
+- WebApp в браузере: `http://localhost:5173/`
+
+Если используются значения из `.env.example`, суперпользователь создается
+автоматически:
+
+- логин: `admin`
+- пароль: `Admin12345!`
+
+## Production-деплой
+
+Для серверного деплоя в репозитории есть:
+
+- `docker-compose.server.yml`
+- `webapp/Dockerfile.prod`
+- `deploy/gateway/nginx.conf`
+- `deploy/nginx/qrkot.site.docker-proxy.conf.template`
+
+Стенд рассчитан на reverse proxy перед контейнерами и домен `qrkot.site`.
+
+## Автоматическая smoke-проверка
+
+Для быстрой автоматической проверки:
+
+```bash
+python scripts/smoke_order.py --base-url https://qrkot.site --service-token <INTERNAL_SERVICE_TOKEN>
 ```
 
 Скрипт:
@@ -155,7 +163,7 @@ python scripts/smoke_order.py --base-url http://localhost:8000 --service-token <
 Если тестовые данные нужно оставить:
 
 ```bash
-python scripts/smoke_order.py --base-url http://localhost:8000 --service-token <INTERNAL_SERVICE_TOKEN> --no-cleanup
+python scripts/smoke_order.py --base-url https://qrkot.site --service-token <INTERNAL_SERVICE_TOKEN> --no-cleanup
 ```
 
 ## Полезные команды
@@ -181,17 +189,11 @@ python admin-panel/manage.py check
 Запустить тесты:
 
 ```bash
-.venv\Scripts\python.exe -m pytest admin-panel
+pytest admin-panel
 ```
 
 Запустить линтер:
 
 ```bash
-python -m ruff check .
+ruff check .
 ```
-
-## Важное замечание по WebApp
-
-Локальный адрес `http://localhost:5173/` подходит для проверки интерфейса в
-браузере. Для запуска WebApp именно внутри Telegram нужен публичный
-`HTTPS` URL.
