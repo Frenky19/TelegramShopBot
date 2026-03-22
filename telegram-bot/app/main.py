@@ -10,6 +10,9 @@ from aiogram.types import (
     BotCommand,
     BotCommandScopeAllPrivateChats,
     BotCommandScopeChat,
+    MenuButtonDefault,
+    MenuButtonWebApp,
+    WebAppInfo,
 )
 
 from app.api import BackendAPIError, BackendClient
@@ -48,6 +51,16 @@ async def register_commands(bot: Bot, api: BackendClient) -> None:
         settings = await api.get_settings(force=True)
     except BackendAPIError:
         return
+    webapp_url = settings.get('catalog_webapp_url')
+    if webapp_url:
+        await bot.set_chat_menu_button(
+            menu_button=MenuButtonWebApp(
+                text='Открыть WebApp',
+                web_app=WebAppInfo(url=webapp_url),
+            )
+        )
+    else:
+        await bot.set_chat_menu_button(menu_button=MenuButtonDefault())
     admin_chat_id = settings.get('admin_chat_id')
     if not admin_chat_id:
         return

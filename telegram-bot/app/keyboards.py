@@ -29,13 +29,6 @@ def main_keyboard(webapp_url: str | None) -> ReplyKeyboardMarkup:
     builder = ReplyKeyboardBuilder()
     builder.row(KeyboardButton(text='Каталог'), KeyboardButton(text='Корзина'))
     builder.row(KeyboardButton(text='Мои заказы'))
-    if webapp_url:
-        builder.row(
-            KeyboardButton(
-                text='Открыть WebApp',
-                web_app=WebAppInfo(url=webapp_url),
-            )
-        )
     builder.row(KeyboardButton(text='Помощь'))
     return builder.as_markup(resize_keyboard=True)
 
@@ -140,7 +133,7 @@ def catalog_keyboard(
     if webapp_url:
         footer.append(
             InlineKeyboardButton(
-                text='Открыть витрину',
+                text='Открыть WebApp',
                 web_app=WebAppInfo(url=webapp_url),
             )
         )
