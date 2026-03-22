@@ -35,6 +35,18 @@ CSRF_TRUSTED_ORIGINS = [
     for origin in os.getenv('DJANGO_CSRF_TRUSTED_ORIGINS', '').split(',')
     if origin.strip()
 ]
+USE_X_FORWARDED_HOST = (
+    os.getenv('DJANGO_USE_X_FORWARDED_HOST', '0') == '1'
+)
+SESSION_COOKIE_SECURE = (
+    os.getenv('DJANGO_SESSION_COOKIE_SECURE', '0') == '1'
+)
+CSRF_COOKIE_SECURE = (
+    os.getenv('DJANGO_CSRF_COOKIE_SECURE', '0') == '1'
+)
+if os.getenv('DJANGO_TRUST_X_FORWARDED_PROTO', '0') == '1':
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')
 INTERNAL_SERVICE_TOKEN = os.getenv(
     'INTERNAL_SERVICE_TOKEN', 'dev-service-token'

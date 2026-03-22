@@ -1,0 +1,63 @@
+name: telegramshopbot-prod
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  admin-panel:
+    build:
+      context: ./admin-panel
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: >
+      sh -c "python manage.py migrate &&
+      python manage.py collectstatic --noinput &&
+      python scripts/create_superuser.py &&
+      gunicorn config.wsgi:application --bind 0.0.0.0:8000
+      --workers 3 --timeout 120"
+    ports:
+      - "127.0.0.1:${ADMIN_PANEL_BIND_PORT:-18000}:8000"
+    volumes:
+      - ./admin-panel/media:/app/media
+      - ./admin-panel/staticfiles:/app/staticfiles
+      - ./admin-panel/logs:/app/logs
+
+  telegram-bot:
+    build:
+      context: ./telegram-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      admin-panel:
+        condition: service_started
+    command: python -m app.main
+    volumes:
+      - ./telegram-bot/logs:/app/logs
+
+  webapp:
+    build:
+      context: ./webapp
+      dockerfile: Dockerfile.prod
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${WEBAPP_BIND_PORT:-18080}:80"
+
+volumes:
+  postgres_data:
