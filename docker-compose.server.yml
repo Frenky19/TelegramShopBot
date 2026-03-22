@@ -59,5 +59,20 @@ services:
     ports:
       - "127.0.0.1:${WEBAPP_BIND_PORT:-18080}:80"
 
+  gateway:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    depends_on:
+      admin-panel:
+        condition: service_started
+      webapp:
+        condition: service_started
+    ports:
+      - "127.0.0.1:${GATEWAY_BIND_PORT:-18090}:80"
+    volumes:
+      - ./deploy/gateway/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./admin-panel/media:/app/media:ro
+      - ./admin-panel/staticfiles:/app/staticfiles:ro
+
 volumes:
   postgres_data:
