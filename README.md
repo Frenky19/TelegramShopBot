@@ -3,19 +3,54 @@
 Тестовое задание: интернет-магазин в Telegram с Django-админкой, ботом на
 Aiogram и WebApp на React.
 
+## Архитектура и обоснование решений
+
+Проект состоит из четырех основных частей:
+
+- `admin-panel` — backend на `Django + DRF`
+- `telegram-bot` — бот на `Aiogram 3`
+- `webapp` — Telegram WebApp на `React + TypeScript`
+- `postgres` — единое хранилище данных
+
+### Как взаимодействуют сервисы
+
+Выбран подход `REST API + единый backend`.
+
+- `admin-panel` владеет бизнес-логикой и данными
+- `telegram-bot` работает с backend через service API
+- `webapp` работает с backend через публичный и WebApp API
+- `postgres` используется только backend-ом, остальные сервисы не ходят в БД напрямую
+
+### Почему выбран именно такой подход
+
+Этот вариант был выбран вместо общей БД между сервисами или shared-пакета с
+бизнес-логикой, потому что он:
+
+- уменьшает связность между сервисами
+- не дублирует бизнес-логику между ботом и WebApp
+- упрощает тестирование и поддержку
+- делает backend единым источником корректной информации
+
+### Почему выбран стек Django + Aiogram + React
+
+- `Django` дал админку, ORM и быстрый способ собрать backend API
+- `DRF` позволил централизовать валидацию и работу с данными
+- `Aiogram 3` хорошо подошел для FSM, callback-кнопок, middleware и inline-режима
+- `React` подошел для Telegram WebApp, где нужен более удобный UX каталога и корзины
+
 ## Production
 
 Проект развернут в production-окружении.
 
 - WebApp: `https://qrkot.site/`
-- Django admin: `https://qrkot.site/admin/ (Логин: admin, Пароль: Admin12345!)`
-- Telegram бот: @Frenky19_TestShop_bot (любой другой бот, привязанный через `TELEGRAM_BOT_TOKEN)`
-- Telegram админ-группа: https://t.me/+L4MoMWOSaO0xZGMy (любая другая группа, указанная в настройках бота в Django админке. Чтобы управлять заказами из админ группы нужно поставить флаг у пользователя, что он является владельцем бота)
+- Django admin: `https://qrkot.site/admin/` (Логин: admin, Пароль: Admin12345!)
+- Telegram бот: `@Frenky19_TestShop_bot` (любой другой бот, привязанный через `TELEGRAM_BOT_TOKEN`)
+- Telegram админ-группа: `https://t.me/+L4MoMWOSaO0xZGMy` (любая другая группа, указанная в настройках бота в Django админке. Чтобы управлять заказами из админ группы нужно поставить флаг у пользователя, что он является владельцем бота)
 
 WebApp открывается внутри Telegram через системную кнопку `Menu` и через
 inline-кнопку `Открыть WebApp` в каталоге.
 
-## Состав проекта
+## Структура проекта
 
 - `admin-panel` — Django 5 + DRF + PostgreSQL
 - `telegram-bot` — Aiogram 3
@@ -24,6 +59,20 @@ inline-кнопку `Открыть WebApp` в каталоге.
 
 Backend API и бизнес-логика находятся в `admin-panel`. Бот и WebApp работают
 с backend через HTTP API.
+
+Основные директории:
+
+- `admin-panel/apps/catalog` — категории, товары, изображения
+- `admin-panel/apps/customers` — клиенты и корзина
+- `admin-panel/apps/orders` — заказы, позиции заказов, уведомления
+- `admin-panel/apps/marketing` — FAQ и рассылки
+- `admin-panel/apps/botconfig` — настройки бота и обязательные каналы
+- `admin-panel/apps/api` — публичный и сервисный API
+- `telegram-bot/app/routers` — роутеры бота
+- `telegram-bot/app/middlewares.py` — middleware бота
+- `webapp/src` — frontend WebApp
+- `scripts` — вспомогательные скрипты, включая smoke-проверку
+- `deploy` — production-конфиги для reverse proxy и серверного запуска
 
 ## Реализовано
 
@@ -131,6 +180,58 @@ docker compose exec admin-panel python manage.py seed_demo_data
 
 - логин: `admin`
 - пароль: `Admin12345!`
+
+## Переменные окружения
+
+Все основные переменные перечислены в `.env.example`
+
+Ключевые группы:
+
+### База данных
+
+- `POSTGRES_DB`
+- `POSTGRES_USER`
+- `POSTGRES_PASSWORD`
+- `DATABASE_URL`
+
+### Django
+
+- `DJANGO_SECRET_KEY`
+- `DJANGO_DEBUG`
+- `DJANGO_ALLOWED_HOSTS`
+- `DJANGO_CSRF_TRUSTED_ORIGINS`
+- `PUBLIC_BASE_URL`
+
+### Суперпользователь
+
+- `DJANGO_SUPERUSER_USERNAME`
+- `DJANGO_SUPERUSER_EMAIL`
+- `DJANGO_SUPERUSER_PASSWORD`
+
+### Telegram и внутренние сервисы
+
+- `TELEGRAM_BOT_TOKEN`
+- `INTERNAL_SERVICE_TOKEN`
+- `BACKEND_URL`
+- `MEDIA_BASE_URL`
+
+### Фоновые задачи бота
+
+- `SETTINGS_CACHE_TTL`
+- `NOTIFICATION_POLL_INTERVAL`
+- `BROADCAST_POLL_INTERVAL`
+
+### Frontend / WebApp
+
+- `VITE_PROXY_TARGET`
+- `VITE_DEV_INIT_DATA`
+
+### Логи и серверные bind-порты
+
+- `LOGS_DIR`
+- `ADMIN_PANEL_BIND_PORT`
+- `WEBAPP_BIND_PORT`
+- `GATEWAY_BIND_PORT`
 
 ## Production-деплой
 
