@@ -1,4 +1,11 @@
-import type { Cart, Category, OrderPayload, PaginatedResponse, Product, SessionPayload } from '../types'
+import type {
+  Cart,
+  Category,
+  OrderPayload,
+  PaginatedResponse,
+  Product,
+  SessionPayload,
+} from '../types'
 
 type RequestOptions = RequestInit & {
   initData?: string
@@ -52,7 +59,11 @@ export function fetchCategories(): Promise<Category[]> {
   return requestJson<Category[]>('/api/catalog/categories/')
 }
 
-export function fetchProducts(params: { categoryId?: number | null; search?: string; page?: number }): Promise<PaginatedResponse<Product>> {
+export function fetchProducts(params: {
+  categoryId?: number | null
+  search?: string
+  page?: number
+}): Promise<PaginatedResponse<Product>> {
   const searchParams = new URLSearchParams()
   if (params.categoryId) {
     searchParams.set('category', String(params.categoryId))
@@ -61,7 +72,9 @@ export function fetchProducts(params: { categoryId?: number | null; search?: str
     searchParams.set('search', params.search)
   }
   searchParams.set('page', String(params.page ?? 1))
-  return requestJson<PaginatedResponse<Product>>(`/api/catalog/products/?${searchParams.toString()}`)
+  return requestJson<PaginatedResponse<Product>>(
+    `/api/catalog/products/?${searchParams.toString()}`
+  )
 }
 
 export function createSession(initData: string): Promise<SessionPayload> {
@@ -83,7 +96,11 @@ export function addToCart(initData: string, productId: number): Promise<Cart> {
   })
 }
 
-export function updateCartItem(initData: string, productId: number, quantity: number): Promise<Cart> {
+export function updateCartItem(
+  initData: string,
+  productId: number,
+  quantity: number
+): Promise<Cart> {
   return requestJson<Cart>(`/api/webapp/cart/items/${productId}/`, {
     method: 'PATCH',
     initData,
@@ -105,7 +122,10 @@ export function clearCart(initData: string): Promise<Cart> {
   })
 }
 
-export function checkout(initData: string, payload: { full_name: string; address: string }): Promise<OrderPayload> {
+export function checkout(
+  initData: string,
+  payload: { full_name: string; address: string }
+): Promise<OrderPayload> {
   return requestJson<OrderPayload>('/api/webapp/orders/checkout/', {
     method: 'POST',
     initData,

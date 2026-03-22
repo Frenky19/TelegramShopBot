@@ -102,7 +102,9 @@ function App() {
     }
 
     if (!initData) {
-      setNotice('Откройте WebApp из Telegram, чтобы синхронизировать корзину и оформить заказ.')
+      setNotice(
+        'Откройте WebApp из Telegram, чтобы синхронизировать корзину и оформить заказ.'
+      )
       return
     }
 
@@ -127,7 +129,11 @@ function App() {
         search: deferredSearch,
         page,
       })
-      setProducts((previous) => (page === 1 ? response.results : [...previous, ...response.results]))
+      setProducts((previous) =>
+        page === 1
+          ? response.results
+          : [...previous, ...response.results]
+      )
       setHasNextPage(Boolean(response.next))
     } catch (catalogError) {
       setError(extractMessage(catalogError))
@@ -159,7 +165,7 @@ function App() {
     return () => webApp.BackButton.offClick(handleBack)
   }, [view, webApp])
 
-  const submitCheckout = useEffectEvent(async () => {
+  async function submitCheckout() {
     if (!initData) {
       setError('Оформление заказа доступно только внутри Telegram.')
       return
@@ -182,7 +188,9 @@ function App() {
       const order = await checkout(initData, payload)
       setCart(EMPTY_CART)
       setCheckoutForm({ fullName: '', address: '' })
-      setNotice(`Заказ #${order.id} создан. Платежная заглушка: ${order.payment_stub_id}.`)
+      setNotice(
+        `Заказ #${order.id} создан. Платежная заглушка: ${order.payment_stub_id}.`
+      )
       startTransition(() => {
         setView('catalog')
       })
@@ -191,6 +199,10 @@ function App() {
     } finally {
       setBusy(false)
     }
+  }
+
+  const handleMainButtonCheckout = useEffectEvent(() => {
+    void submitCheckout()
   })
 
   useEffect(() => {
@@ -208,9 +220,9 @@ function App() {
       webApp.MainButton.enable()
     }
     webApp.MainButton.show()
-    webApp.MainButton.onClick(submitCheckout)
-    return () => webApp.MainButton.offClick(submitCheckout)
-  }, [busy, cart.items.length, checkoutForm.address, checkoutForm.fullName, view, webApp])
+    webApp.MainButton.onClick(handleMainButtonCheckout)
+    return () => webApp.MainButton.offClick(handleMainButtonCheckout)
+  }, [busy, cart.items.length, checkoutForm, view, webApp])
 
   async function mutateCart(operation: () => Promise<Cart>) {
     if (!initData) {
@@ -342,7 +354,11 @@ function App() {
             <article key={product.id} className="product-card">
               <div className="product-image-wrap">
                 {product.images[0]?.image ? (
-                  <img className="product-image" src={product.images[0].image} alt={product.title} />
+                  <img
+                    className="product-image"
+                    src={product.images[0].image}
+                    alt={product.title}
+                  />
                 ) : (
                   <div className="product-image product-fallback">
                     <span>{product.title.slice(0, 1)}</span>
@@ -352,7 +368,10 @@ function App() {
               <div className="product-body">
                 <div className="product-meta">
                   <h2>{product.title}</h2>
-                  <p>{product.description || 'Краткое описание появится после добавления товара в админке.'}</p>
+                  <p>
+                    {product.description ||
+                      'Краткое описание появится после добавления товара в админке.'}
+                  </p>
                 </div>
                 <div className="product-footer">
                   <strong>{formatCurrency(product.price)}</strong>
@@ -389,9 +408,17 @@ function App() {
           <header className="panel-header">
             <div className="panel-copy">
               <p className="eyebrow">Корзина</p>
-              <h2>{session?.customer.first_name ? `${session.customer.first_name}, ваш заказ` : 'Ваш заказ'}</h2>
+              <h2>
+                {session?.customer.first_name
+                  ? `${session.customer.first_name}, ваш заказ`
+                  : 'Ваш заказ'}
+              </h2>
             </div>
-            <button className="ghost-button" type="button" onClick={() => void mutateCart(() => clearCart(initData))}>
+            <button
+              className="ghost-button"
+              type="button"
+              onClick={() => void mutateCart(() => clearCart(initData))}
+            >
               Очистить
             </button>
           </header>
@@ -411,16 +438,40 @@ function App() {
                       if (item.quantity <= 1) {
                         return
                       }
-                      void mutateCart(() => updateCartItem(initData, item.product.id, item.quantity - 1))
+                      void mutateCart(() =>
+                        updateCartItem(
+                          initData,
+                          item.product.id,
+                          item.quantity - 1
+                        )
+                      )
                     }}
                   >
                     −
                   </button>
                   <span>{item.quantity}</span>
-                  <button type="button" onClick={() => void mutateCart(() => updateCartItem(initData, item.product.id, item.quantity + 1))}>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      void mutateCart(() =>
+                        updateCartItem(
+                          initData,
+                          item.product.id,
+                          item.quantity + 1
+                        )
+                      )
+                    }
+                  >
                     +
                   </button>
-                  <button type="button" onClick={() => void mutateCart(() => removeCartItem(initData, item.product.id))}>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      void mutateCart(() =>
+                        removeCartItem(initData, item.product.id)
+                      )
+                    }
+                  >
                     Удалить
                   </button>
                 </div>
@@ -474,7 +525,12 @@ function App() {
             <strong>{formatCurrency(cart.total_amount)}</strong>
           </div>
           {!webApp && (
-            <button className="checkout-fallback" type="button" onClick={() => void submitCheckout()} disabled={busy}>
+            <button
+              className="checkout-fallback"
+              type="button"
+              onClick={() => void submitCheckout()}
+              disabled={busy}
+            >
               Подтвердить заказ
             </button>
           )}
