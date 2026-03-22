@@ -7,6 +7,7 @@ from aiogram.types import Message
 
 from app.api import BackendAPIError, BackendClient
 from app.keyboards import main_keyboard, request_contact_keyboard
+from app.menu import configure_private_menu_button
 from app.routers.catalog import send_product_card
 from app.states import RegistrationState
 
@@ -26,6 +27,11 @@ async def cmd_start(
     """Обрабатывает старт бота и deep link."""
     payload = command.args or ''
     settings = await api.get_settings(force=True)
+    await configure_private_menu_button(
+        bot,
+        chat_id=message.chat.id,
+        webapp_url=settings.get('catalog_webapp_url'),
+    )
     if customer.get('phone'):
         await state.clear()
         await message.answer(
@@ -83,6 +89,11 @@ async def save_contact(
     state_data = await state.get_data()
     await state.clear()
     settings = await api.get_settings(force=True)
+    await configure_private_menu_button(
+        bot,
+        chat_id=message.chat.id,
+        webapp_url=settings.get('catalog_webapp_url'),
+    )
     await message.answer(
         'Телефон сохранен. Теперь можно оформлять заказы.',
         reply_markup=main_keyboard(settings.get('catalog_webapp_url')),
