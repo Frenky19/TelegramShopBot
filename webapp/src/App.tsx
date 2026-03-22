@@ -18,11 +18,22 @@ type ViewMode = 'catalog' | 'cart' | 'checkout'
 
 const EMPTY_CART: Cart = { items: [], total_amount: '0.00' }
 
-function flattenCategories(categories: Category[], depth = 0): Array<Category & { depth: number }> {
-  return categories.flatMap((category) => [
-    { ...category, depth },
-    ...flattenCategories(category.children, depth + 1),
-  ])
+function findCategoryPath(
+  categories: Category[],
+  targetId: number,
+): Category[] | null {
+  for (const category of categories) {
+    if (category.id === targetId) {
+      return [category]
+    }
+
+    const nestedPath = findCategoryPath(category.children, targetId)
+    if (nestedPath) {
+      return [category, ...nestedPath]
+    }
+  }
+
+  return null
 }
 
 function formatCurrency(value: string) {
@@ -238,17 +249,23 @@ function App() {
     setPage(1)
   }
 
-  const categoryOptions = flattenCategories(categories)
+  const activeCategoryPath =
+    selectedCategoryId === null
+      ? null
+      : findCategoryPath(categories, selectedCategoryId)
+  const selectedRootCategory = activeCategoryPath?.[0] ?? null
+  const selectedSubcategoryId =
+    activeCategoryPath && activeCategoryPath.length > 1
+      ? activeCategoryPath[1].id
+      : null
+  const subcategoryOptions = selectedRootCategory?.children ?? []
 
   return (
     <main className="app-shell">
       <section className="hero-card">
         <div className="hero-copy">
-          <p className="eyebrow">Telegram Shop</p>
-          <h1>Витрина внутри мессенджера, без лишних экранов.</h1>
-          <p className="hero-text">
-            Каталог, синхронная корзина и checkout в одном окне Telegram WebApp.
-          </p>
+          <h1>Выберите то, что вам нужно.</h1>
+          <p className="hero-text">Каталог товаров с быстрым заказом.</p>
         </div>
         <button className="cart-pill" type="button" onClick={openCart}>
           Корзина
@@ -275,25 +292,47 @@ function App() {
             placeholder="Например, чехол или наушники"
           />
         </label>
-        <div className="chips" aria-label="Категории">
-          <button
-            className={selectedCategoryId === null ? 'chip chip-active' : 'chip'}
-            type="button"
-            onClick={() => resetCatalog(null)}
-          >
-            Все
-          </button>
-          {categoryOptions.map((category) => (
+        <div className="filter-groups">
+          <div className="chips" aria-label="Категории">
             <button
-              key={category.id}
-              className={selectedCategoryId === category.id ? 'chip chip-active' : 'chip'}
+              className={selectedCategoryId === null ? 'chip chip-active' : 'chip'}
               type="button"
-              onClick={() => resetCatalog(category.id)}
+              onClick={() => resetCatalog(null)}
             >
-              {'· '.repeat(category.depth)}
-              {category.title}
+              Все
             </button>
-          ))}
+            {categories.map((category) => (
+              <button
+                key={category.id}
+                className={selectedRootCategory?.id === category.id ? 'chip chip-active' : 'chip'}
+                type="button"
+                onClick={() => resetCatalog(category.id)}
+              >
+                {category.title}
+              </button>
+            ))}
+          </div>
+          {subcategoryOptions.length > 0 && (
+            <div className="chips chips-secondary" aria-label="Подкатегории">
+              <button
+                className={selectedSubcategoryId === null ? 'chip chip-active' : 'chip'}
+                type="button"
+                onClick={() => resetCatalog(selectedRootCategory?.id ?? null)}
+              >
+                Все в категории
+              </button>
+              {subcategoryOptions.map((subcategory) => (
+                <button
+                  key={subcategory.id}
+                  className={selectedSubcategoryId === subcategory.id ? 'chip chip-active' : 'chip'}
+                  type="button"
+                  onClick={() => resetCatalog(subcategory.id)}
+                >
+                  {subcategory.title}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
