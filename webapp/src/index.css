@@ -104,13 +104,12 @@ img {
   min-width: 120px;
   padding: 14px 18px;
   border-radius: 999px;
-  background: #ffcf9f;
-  color: #7a3a11;
+  background: var(--tg-button, #ff6b2c);
+  color: var(--tg-button-text, #fff8ef);
   display: inline-flex;
   align-items: center;
   gap: 12px;
   font-weight: 700;
-  box-shadow: inset 0 0 0 1px rgba(122, 58, 17, 0.08);
 }
 
 .status-stack {
@@ -252,6 +251,19 @@ img {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+}
+
+.panel-header {
+  margin-bottom: 12px;
+}
+
+.panel-copy {
+  display: grid;
+  gap: 8px;
+}
+
+.panel-copy p {
+  margin: 0;
 }
 
 .product-footer button,

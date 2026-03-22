@@ -387,8 +387,8 @@ function App() {
       {view === 'cart' && (
         <section className="panel">
           <header className="panel-header">
-            <div>
-              <p className="eyebrow">Синхронизированная корзина</p>
+            <div className="panel-copy">
+              <p className="eyebrow">Корзина</p>
               <h2>{session?.customer.first_name ? `${session.customer.first_name}, ваш заказ` : 'Ваш заказ'}</h2>
             </div>
             <button className="ghost-button" type="button" onClick={() => void mutateCart(() => clearCart(initData))}>
