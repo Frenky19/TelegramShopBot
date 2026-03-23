@@ -4,9 +4,9 @@
   font-weight: 400;
   color: var(--tg-text, #11221f);
   background:
-    radial-gradient(circle at top left, rgba(255, 190, 92, 0.45), transparent 30%),
-    radial-gradient(circle at top right, rgba(35, 171, 141, 0.2), transparent 32%),
-    linear-gradient(180deg, #f8f1de 0%, var(--tg-bg, #f7f5ef) 100%);
+    radial-gradient(circle at top left, var(--page-glow-left), transparent 30%),
+    radial-gradient(circle at top right, var(--page-glow-right), transparent 32%),
+    linear-gradient(180deg, var(--page-top) 0%, var(--tg-bg, #f7f5ef) 100%);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -19,8 +19,54 @@
   --tg-button: #ff6b2c;
   --tg-button-text: #fff8ef;
   --tg-accent: #136f63;
+  --page-glow-left: rgba(255, 190, 92, 0.45);
+  --page-glow-right: rgba(35, 171, 141, 0.2);
+  --page-top: #f8f1de;
   --border: rgba(17, 34, 31, 0.08);
   --shadow: 0 18px 42px rgba(17, 34, 31, 0.08);
+  --surface-panel: color-mix(in srgb, var(--tg-surface, #fffaf0) 88%, white 12%);
+  --surface-card: rgba(255, 255, 255, 0.78);
+  --surface-row: rgba(255, 255, 255, 0.65);
+  --field-bg: rgba(255, 255, 255, 0.7);
+  --field-border: rgba(17, 34, 31, 0.12);
+  --chip-bg: rgba(255, 255, 255, 0.76);
+  --ghost-bg: rgba(17, 34, 31, 0.06);
+  --summary-bg: rgba(17, 34, 31, 0.04);
+  --banner-error-bg: rgba(198, 61, 47, 0.12);
+  --banner-info-bg: rgba(19, 111, 99, 0.1);
+  --image-gradient-start: rgba(255, 201, 95, 0.4);
+  --image-gradient-end: rgba(35, 171, 141, 0.25);
+}
+
+:root[data-theme='dark'] {
+  --page-glow-left: color-mix(in srgb, var(--tg-button, #ff6b2c) 24%, transparent);
+  --page-glow-right: color-mix(in srgb, var(--tg-accent, #136f63) 22%, transparent);
+  --page-top: color-mix(in srgb, var(--tg-bg, #101517) 74%, black 26%);
+  --border: color-mix(in srgb, var(--tg-text, #f2f4f3) 14%, transparent);
+  --shadow: 0 22px 48px rgba(0, 0, 0, 0.3);
+  --surface-panel:
+    color-mix(in srgb, var(--tg-surface, #1b2224) 90%, var(--tg-bg, #101517) 10%);
+  --surface-card:
+    color-mix(in srgb, var(--tg-surface, #1b2224) 86%, var(--tg-bg, #101517) 14%);
+  --surface-row:
+    color-mix(in srgb, var(--tg-surface, #1b2224) 84%, black 16%);
+  --field-bg:
+    color-mix(in srgb, var(--tg-surface, #1b2224) 82%, black 18%);
+  --field-border:
+    color-mix(in srgb, var(--tg-text, #f2f4f3) 16%, transparent);
+  --chip-bg:
+    color-mix(in srgb, var(--tg-surface, #1b2224) 84%, black 16%);
+  --ghost-bg:
+    color-mix(in srgb, var(--tg-text, #f2f4f3) 10%, transparent);
+  --summary-bg:
+    color-mix(in srgb, var(--tg-bg, #101517) 72%, var(--tg-surface, #1b2224) 28%);
+  --banner-error-bg: color-mix(in srgb, #d16657 18%, transparent);
+  --banner-info-bg:
+    color-mix(in srgb, var(--tg-accent, #136f63) 16%, transparent);
+  --image-gradient-start:
+    color-mix(in srgb, var(--tg-button, #ff6b2c) 32%, transparent);
+  --image-gradient-end:
+    color-mix(in srgb, var(--tg-accent, #136f63) 28%, transparent);
 }
 
 * {
@@ -32,6 +78,10 @@ body {
   min-width: 320px;
   min-height: 100vh;
   color: var(--tg-text, #11221f);
+  background:
+    radial-gradient(circle at top left, var(--page-glow-left), transparent 30%),
+    radial-gradient(circle at top right, var(--page-glow-right), transparent 32%),
+    linear-gradient(180deg, var(--page-top) 0%, var(--tg-bg, #f7f5ef) 100%);
 }
 
 button,
@@ -66,7 +116,7 @@ img {
 .banner,
 .loader-card {
   backdrop-filter: blur(12px);
-  background: color-mix(in srgb, var(--tg-surface, #fffaf0) 88%, white 12%);
+  background: var(--surface-panel);
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
 }
@@ -124,11 +174,11 @@ img {
 }
 
 .banner-error {
-  background: rgba(198, 61, 47, 0.12);
+  background: var(--banner-error-bg);
 }
 
 .banner-info {
-  background: rgba(19, 111, 99, 0.1);
+  background: var(--banner-info-bg);
 }
 
 .toolbar {
@@ -150,10 +200,16 @@ img {
 .field textarea {
   width: 100%;
   border-radius: 18px;
-  border: 1px solid rgba(17, 34, 31, 0.12);
-  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--field-border);
+  background: var(--field-bg);
   padding: 14px 16px;
   color: inherit;
+}
+
+.search-box input::placeholder,
+.field input::placeholder,
+.field textarea::placeholder {
+  color: var(--tg-muted, #5b6b66);
 }
 
 .field textarea {
@@ -178,10 +234,11 @@ img {
 
 .chip {
   white-space: nowrap;
-  background: rgba(255, 255, 255, 0.76);
+  background: var(--chip-bg);
   color: var(--tg-text, #11221f);
   border-radius: 999px;
   padding: 10px 14px;
+  border: 1px solid var(--border);
 }
 
 .chip-active {
@@ -200,8 +257,8 @@ img {
   gap: 18px;
   border-radius: 26px;
   padding: 14px;
-  background: rgba(255, 255, 255, 0.78);
-  border: 1px solid rgba(17, 34, 31, 0.08);
+  background: var(--surface-card);
+  border: 1px solid var(--border);
 }
 
 .product-image-wrap {
@@ -213,7 +270,12 @@ img {
   height: 100%;
   object-fit: cover;
   border-radius: 22px;
-  background: linear-gradient(135deg, rgba(255, 201, 95, 0.4), rgba(35, 171, 141, 0.25));
+  background:
+    linear-gradient(
+      135deg,
+      var(--image-gradient-start),
+      var(--image-gradient-end)
+    );
 }
 
 .product-fallback {
@@ -287,7 +349,7 @@ img {
 
 .ghost-button,
 .cart-controls button {
-  background: rgba(17, 34, 31, 0.06);
+  background: var(--ghost-bg);
   color: var(--tg-text, #11221f);
 }
 
@@ -306,8 +368,8 @@ img {
 .cart-row {
   border-radius: 22px;
   padding: 16px;
-  background: rgba(255, 255, 255, 0.65);
-  border: 1px solid rgba(17, 34, 31, 0.08);
+  background: var(--surface-row);
+  border: 1px solid var(--border);
 }
 
 .empty-state,
@@ -324,7 +386,13 @@ img {
   margin-top: 18px;
   padding: 18px;
   border-radius: 20px;
-  background: rgba(17, 34, 31, 0.04);
+  background: var(--summary-bg);
+}
+
+.ghost-button:disabled,
+.cart-controls button:disabled {
+  opacity: 0.45;
+  cursor: default;
 }
 
 @media (max-width: 720px) {

@@ -28,9 +28,12 @@ interface TelegramBackButton {
 
 interface TelegramWebApp {
   initData: string
+  colorScheme?: 'light' | 'dark'
   themeParams: TelegramThemeParams
   ready(): void
   expand(): void
+  onEvent?(eventType: 'themeChanged', callback: () => void): void
+  offEvent?(eventType: 'themeChanged', callback: () => void): void
   MainButton: TelegramButton
   BackButton: TelegramBackButton
 }
